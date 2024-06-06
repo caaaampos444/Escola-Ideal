@@ -41,23 +41,33 @@ const setInserirNovoResponsavel=async function(dadosResponsavel, contentType){
     }
 }
 
-const setAtualizarAluno=async function(id, dadosResponsavel, contentType){
+const setAtualizarResponsavel=async function(id, dadosResponsavel, contentType){
     try {
         if(String(contentType).toLowerCase()=='application/json'){
-            let idAluno=id
-            if(idAluno==''||idAluno==undefined||isNaN(idAluno)||idAluno==null)
+            let idResponsavel=id
+            if(
+                dadosResponsavel.nome==''            || dadosResponsavel.nome==undefined            || dadosResponsavel.nome==null            || dadosResponsavel.nome.length>100            ||
+                dadosResponsavel.data_nascimento=='' || dadosResponsavel.data_nascimento==undefined || dadosResponsavel.data_nascimento==null || dadosResponsavel.data_nascimento.length!=10 ||
+                dadosResponsavel.email==''           || dadosResponsavel.email==undefined           || dadosResponsavel.email==null           || dadosResponsavel.email.length>100           ||
+                dadosResponsavel.telefone==''        || dadosResponsavel.telefone==undefined        || dadosResponsavel.telefone==null        || dadosResponsavel.telefone.length>300        ||
+                dadosResponsavel.cpf==''             || dadosResponsavel.cpf==undefined             || dadosResponsavel.cpf==null             || dadosResponsavel.cpf.length!=11             ||
+                dadosResponsavel.id_sexo==''         || dadosResponsavel.id_sexo==undefined         || dadosResponsavel.id_sexo==null         || dadosResponsavel.id_sexo>2                  ||
+                dadosResponsavel.id_aluno==''        || dadosResponsavel.id_aluno==undefined        || dadosResponsavel.id_aluno==null                             
+            )
+                return message.ERROR_REQUIRED_FIELDS
+            else if(idResponsavel==''||idResponsavel==undefined||isNaN(idResponsavel)||idResponsavel==null)
                 return message.ERROR_INVALID_ID
             else{
-                let aluno=await responsavelDAO.selectByIDAluno(idAluno)
-                if(aluno){
-                    let alunoAtualizadoJSON={}
-                    let alunoAtualizado=await responsavelDAO.updateAluno(idAluno, dadosResponsavel)
-                    if(alunoAtualizado){
-                        alunoAtualizadoJSON.aluno=dadosResponsavel
-                        alunoAtualizadoJSON.status=message.SUCCES_UPDATED_ITEM.status
-                        alunoAtualizadoJSON.status_code=message.SUCCES_UPDATED_ITEM.status_code
-                        alunoAtualizadoJSON.message=message.SUCCES_UPDATED_ITEM.message
-                        return alunoAtualizadoJSON
+                let responsavel=await responsavelDAO.selectByIDResponsavel(idResponsavel)
+                if(responsavel){
+                    let responsavelAtualizadoJSON={}
+                    let responsavelAtualizado=await responsavelDAO.updateResponsavel(idResponsavel, dadosResponsavel)
+                    if(responsavelAtualizado){
+                        responsavelAtualizadoJSON.responsavel=dadosResponsavel
+                        responsavelAtualizadoJSON.status=message.SUCCES_UPDATED_ITEM.status
+                        responsavelAtualizadoJSON.status_code=message.SUCCES_UPDATED_ITEM.status_code
+                        responsavelAtualizadoJSON.message=message.SUCCES_UPDATED_ITEM.message
+                        return responsavelAtualizadoJSON
                     }
                     else
                         return message.ERROR_INTERNAL_SERVER_DB
@@ -75,11 +85,11 @@ const setAtualizarAluno=async function(id, dadosResponsavel, contentType){
 
 const setDeletarAluno=async function(id){
     try {
-        let idAluno=id
-        if(idAluno==''||idAluno==null||idAluno==undefined)
+        let idResponsavel=id
+        if(idResponsavel==''||idResponsavel==null||idResponsavel==undefined)
             return message.ERROR_INVALID_ID
         else{
-            let verificaAluno=await responsavelDAO.selectByIDAluno(idAluno)
+            let verificaAluno=await responsavelDAO.selectByIDAluno(idResponsavel)
             if(verificaAluno.length<1)
                 return message.ERROR_NOT_FOUND
             else{
@@ -113,15 +123,15 @@ const getListarResponsaveis=async function(){
 
 const getBuscarAlunoPeloID=async function(id){
     try {
-        let idAluno=id
+        let idResponsavel=id
         let responsaveisJSON={}
-        if(idAluno==''||idAluno==undefined||isNaN(idAluno))
+        if(idResponsavel==''||idResponsavel==undefined||isNaN(idResponsavel))
             return message.ERROR_INVALID_ID
         else{
-            let dadosResponsavel=await responsavelDAO.selectByIDAluno(idAluno)
+            let dadosResponsavel=await responsavelDAO.selectByIDAluno(idResponsavel)
             if(dadosResponsavel){
                 if(dadosResponsavel.length>0){
-                    responsaveisJSON.aluno=dadosResponsavel
+                    responsaveisJSON.responsavel=dadosResponsavel
                     responsaveisJSON.status_code=200
                     return responsaveisJSON
                 }else
@@ -161,7 +171,7 @@ const getBuscarAlunosPelaTurma=async function(id){
 
 module.exports={
     setInserirNovoResponsavel,
-    setAtualizarAluno,
+    setAtualizarResponsavel,
     setDeletarAluno,
     getListarResponsaveis,
     getBuscarAlunoPeloID,

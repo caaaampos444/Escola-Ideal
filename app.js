@@ -72,6 +72,15 @@ app.post('/v1/escolaideal/responsavel/insert',cors(), bodyParserJSON, async func
     response.json(resultDadosNovoAluno)
 })
 
+app.put('/v1/escolaideal/responsavel/update/:id', cors(), bodyParserJSON, async function(request, response){
+    let idResponsavel=request.params.id
+    let contentType=request.headers['content-type']
+    let dadosBody=request.body
+    let resultDadosResponsavelAtualizado=await controllerResponsaveis.setAtualizarResponsavel(idResponsavel, dadosBody, contentType)
+    response.status(resultDadosResponsavelAtualizado.status_code)
+    response.json(resultDadosResponsavelAtualizado)
+})
+
 app.listen('8080',function(){
     console.log('API no ar!!!')
 })

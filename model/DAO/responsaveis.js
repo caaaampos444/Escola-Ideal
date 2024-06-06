@@ -20,7 +20,7 @@ const insertResponsavel = async function (dadosResponsavel) {
         )`
         let result = await prisma.$executeRawUnsafe(sql)
         let idEndereco = await selectLastIDEndereco()
-        let ultimoIDResponsavel = await selectLastID()
+        let ultimoIDResponsavel=await selectLastID()
         if (result){
             let sql = `insert into tbl_responsaveis(
                 nome,
@@ -66,26 +66,54 @@ const insertResponsavel = async function (dadosResponsavel) {
     }
 }
 
-const updateAluno = async function (id, dadosResponsavel) {
+const updateResponsavel = async function (id, dadosResponsavel) {
     try {
-        let sql = `
-            update tbl_responsaveis
+        let sql=`delete from tbl_responsavel_aluno where id_responsavel=${id}`
+        let result=await prisma.$executeRawUnsafe(sql)
+        if(result){
+            sql=`update tbl_responsaveis
 
-            set
+            set 
                 nome='${dadosResponsavel.nome}',
                 data_nascimento='${dadosResponsavel.data_nascimento}',
                 email='${dadosResponsavel.email}',
-                foto='${dadosResponsavel.foto}',
-                id_sexo='${dadosResponsavel.id_sexo}'
-            
-            where id=${id}
-       `
-        let result = await prisma.$executeRawUnsafe(sql)
-        if (result)
-            return true
-        else
+                cpf='${dadosResponsavel.cpf}',
+                telefone='${dadosResponsavel.telefone}',
+                id_sexo=${dadosResponsavel.id_sexo}
+
+            where id='${id}'`
+            result=await prisma.$executeRawUnsafe(sql)
+            if(result){
+                for(let aluno of dadosResponsavel.id_aluno){
+                    console.log(aluno);
+                    sql=`insert into tbl_responsavel_aluno(
+                        id_responsavel,
+                        id_aluno
+                    ) values(
+                        ${id},
+                        ${aluno}
+                    )`
+                    result=prisma.$executeRawUnsafe(sql)
+                    if(result)
+                        continue
+                    else{
+                        console.log('1');
+                        return false
+                    }
+                }
+                return true
+            }
+            else{
+                console.log('2');
+                return false
+            }
+        }  
+        else{
+            console.log('3');
             return false
+        }
     } catch (error) {
+        console.log(error);
         return false
     }
 }
@@ -121,7 +149,7 @@ const selectAllResponsaveis = async function () {
     }
 }
 
-const selectByIDAluno = async function (id) {
+const selectByIDResponsavel = async function (id) {
     try {
         let sql = `select * from tbl_responsaveis where id=${id}`
         let rsResponsaveis = await prisma.$queryRawUnsafe(sql)
@@ -153,9 +181,10 @@ const selectLastIDEndereco = async function () {
 
 module.exports = {
     insertResponsavel,
-    updateAluno,
+    updateResponsavel
+,
     deleteAluno,
     selectAllResponsaveis,
-    selectByIDAluno,
+    selectByIDResponsavel,
     selectLastID
 }
